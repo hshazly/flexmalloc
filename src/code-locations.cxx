@@ -764,6 +764,8 @@ void CodeLocations::show_hmem_visualizer_stats (const char *fallback_allocator_n
 			}
 			//   aggregate bytes part
 			fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", _locations[l].stats.HWM);
+                        //   average bytes part
+                        fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", (_locations[l].stats.HWM + _locations[l].stats.HWM_fb ) / _locations[l].stats.n_allocations);
 			//   max bytes part
 			fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", _locations[l].stats.max_memory);
 			//   weight part
@@ -795,6 +797,8 @@ void CodeLocations::show_hmem_visualizer_stats (const char *fallback_allocator_n
 			}
 			//   bytes part
 			fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", _locations[l].stats.HWM_fb);
+                        //   average bytes part
+                        fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", (_locations[l].stats.HWM + _locations[l].stats.HWM_fb ) / _locations[l].stats.n_allocations);	
 			//   max bytes part
 			fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", _locations[l].stats.max_memory_fb);
 			//   weight part
