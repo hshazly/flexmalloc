@@ -762,8 +762,10 @@ void CodeLocations::show_hmem_visualizer_stats (const char *fallback_allocator_n
 				else
 					fprintf (options.messages_on_stderr()?stderr:stdout, " > %08lx", rf->frame);
 			}
-			//   bytes part
+			//   aggregate bytes part
 			fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", _locations[l].stats.HWM);
+			//   max bytes part
+			fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", _locations[l].stats.max_memory);
 			//   weight part
 			fprintf (options.messages_on_stderr()?stderr:stdout, ";%d", 0);
 			//   memtype part
@@ -793,6 +795,8 @@ void CodeLocations::show_hmem_visualizer_stats (const char *fallback_allocator_n
 			}
 			//   bytes part
 			fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", _locations[l].stats.HWM_fb);
+			//   max bytes part
+			fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", _locations[l].stats.max_memory_fb);
 			//   weight part
 			fprintf (options.messages_on_stderr()?stderr:stdout, ";%d", 0);
 			//   memtype part
@@ -981,12 +985,18 @@ void CodeLocations::record_location_add_memory (unsigned lid, size_t size, bool 
 
 	if (!fallback_allocator)
 	{
+		if (_locations[lid].stats.max_memory < size) 
+			_locations[lid].stats.max_memory = size;
+	
 		_locations[lid].stats.current_used_memory += size;
 		if (_locations[lid].stats.HWM < _locations[lid].stats.current_used_memory)
 			_locations[lid].stats.HWM = _locations[lid].stats.current_used_memory;
 	}
 	else
 	{
+		if (_locations[lid].stats.max_memory_fb < size) 
+			_locations[lid].stats.max_memory_fb = size;
+	
 		_locations[lid].stats.current_used_memory_fb += size;
 		if (_locations[lid].stats.HWM_fb < _locations[lid].stats.current_used_memory_fb)
 			_locations[lid].stats.HWM_fb = _locations[lid].stats.current_used_memory_fb;

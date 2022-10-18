@@ -30,8 +30,10 @@ class CodeLocations
 
 	typedef struct {
 		size_t   current_used_memory;
+		size_t   max_memory;
 		size_t   HWM;
 		size_t   current_used_memory_fb;
+		size_t   max_memory_fb;
 		size_t   HWM_fb;
 		unsigned n_living_objects;
 		unsigned n_max_living_objects;
