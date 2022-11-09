@@ -764,12 +764,13 @@ void CodeLocations::show_hmem_visualizer_stats (const char *fallback_allocator_n
 			}
 			//   aggregate bytes part
 			fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", _locations[l].stats.HWM);
+			long long avg = (_locations[l].stats.HWM + _locations[l].stats.HWM_fb ) / _locations[l].stats.n_allocations;
                         //   average bytes part
-                        fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", (_locations[l].stats.HWM + _locations[l].stats.HWM_fb ) / _locations[l].stats.n_allocations);
+                        fprintf (options.messages_on_stderr()?stderr:stdout, ";%llu", avg);
 			//   max bytes part
 			fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", _locations[l].stats.max_memory);
-			//   weight part
-			fprintf (options.messages_on_stderr()?stderr:stdout, ";%d", 0);
+			//   weight part -- num allocations
+			fprintf (options.messages_on_stderr()?stderr:stdout, ";%d", _locations[l].stats.n_allocations);
 			//   memtype part
 			fprintf (options.messages_on_stderr()?stderr:stdout, ";%s", allocator(l)->name());
 			//   EoL
