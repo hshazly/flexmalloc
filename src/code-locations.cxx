@@ -763,8 +763,8 @@ void CodeLocations::show_hmem_visualizer_stats (const char *fallback_allocator_n
 					fprintf (options.messages_on_stderr()?stderr:stdout, " > %08lx", rf->frame);
 			}
 			//   aggregate bytes part
-			fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", _locations[l].stats.HWM);
-			long long avg = (_locations[l].stats.HWM + _locations[l].stats.HWM_fb ) / _locations[l].stats.n_allocations;
+			fprintf (options.messages_on_stderr()?stderr:stdout, ";%lu", _locations[l].stats.total_mem);
+			long long avg = (_locations[l].stats.total_mem + _locations[l].stats.total_mem_fb ) / _locations[l].stats.n_allocations;
                         //   average bytes part
                         fprintf (options.messages_on_stderr()?stderr:stdout, ";%llu", avg);
 			//   max bytes part
@@ -992,8 +992,10 @@ void CodeLocations::record_location_add_memory (unsigned lid, size_t size, bool 
 	{
 		if (_locations[lid].stats.max_memory < size) 
 			_locations[lid].stats.max_memory = size;
-	
+
+		_locations[lid].stats.total_mem += size;	
 		_locations[lid].stats.current_used_memory += size;
+
 		if (_locations[lid].stats.HWM < _locations[lid].stats.current_used_memory)
 			_locations[lid].stats.HWM = _locations[lid].stats.current_used_memory;
 	}
@@ -1002,7 +1004,9 @@ void CodeLocations::record_location_add_memory (unsigned lid, size_t size, bool 
 		if (_locations[lid].stats.max_memory_fb < size) 
 			_locations[lid].stats.max_memory_fb = size;
 	
+		_locations[lid].stats.total_mem_fb += size;
 		_locations[lid].stats.current_used_memory_fb += size;
+
 		if (_locations[lid].stats.HWM_fb < _locations[lid].stats.current_used_memory_fb)
 			_locations[lid].stats.HWM_fb = _locations[lid].stats.current_used_memory_fb;
 	}
