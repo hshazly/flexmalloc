@@ -173,8 +173,9 @@ bool CodeLocations::process_source_location (char *location_txt, location_t * lo
 	return true;
 }
 
-long CodeLocations::base_address_for_library (const char *lib)
+bool CodeLocations::base_address_for_library (const char *lib, long &calculatedBaseAddress)
 {
+	bool libFound = false;
 	long baseAddress = 0;
 
 	FILE * mapsfile = fopen ("/proc/self/maps", "r");
@@ -212,6 +213,8 @@ long CodeLocations::base_address_for_library (const char *lib)
 					// Check if library matches
 					if (strcmp (module, lib) == 0)
 					{
+						libFound = true;
+
 						// Base address for main binary is 0
 						if (line_no == 0)
 							baseAddress = 0;
@@ -226,9 +229,15 @@ long CodeLocations::base_address_for_library (const char *lib)
 
 	fclose (mapsfile);
 
-	DBG("Base address for library (%s) -> %lx\n", lib, baseAddress);
+	if (libFound)
+	{
+		calculatedBaseAddress = baseAddress;
+		DBG("Base address for library (%s) -> %lx\n", lib, calculatedBaseAddress);
+	} else {
+		DBG("Library (%s) has not been found\n", lib);
+	}
 
-	return baseAddress;
+	return libFound;
 }
 
 bool CodeLocations::process_raw_location (char *location_txt, location_t * location, const char *fallback_allocator_name)
@@ -305,12 +314,20 @@ bool CodeLocations::process_raw_location (char *location_txt, location_t * locat
 		long address = strtoul (frame+1, &endptr, 16);
 		assert (endptr <= frame+1+16);
 
-		long base_address = base_address_for_library (module);
+		long base_address = 0;
+		if (base_address_for_library (module, base_address))
+		{
 
-		DBG("Address %lx in library %s gets relocated to %lx.\n", 
-		  address, module, address+base_address);
+			DBG("Address %lx in library %s gets relocated to %lx.\n", 
+			  address, module, address+base_address);
 
-		location->frames.raw[f].frame = address+base_address;
+			location->frames.raw[f].frame = address+base_address;
+		} else {
+			DBG("Address %lx in library %s will not be relocated.\n",
+			  address, module);
+			
+			location->frames.raw[f].frame = address;
+		}
 
 		prev_frame = strchr (frame, '>') + 2;
 		if (prev_frame == nullptr)
